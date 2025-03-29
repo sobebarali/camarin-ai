@@ -1,8 +1,14 @@
 import { Hono } from "@hono/hono";
 import { cors } from "@hono/hono/cors";
+import { basicAuth } from '@hono/hono/basic-auth'
 import data from "./data.json" with { type: "json" };
-
+import mongoose from "npm:mongoose";
 const app = new Hono();
+
+await mongoose.connect("mongodb://localhost:27017");
+
+// Check to see connection status.
+console.log(mongoose.connection.readyState);
 
 app.use(
   "/api/*",
@@ -19,6 +25,14 @@ app.use(
 app.get("/", (c) => {
   return c.text("Welcome to the dinosaur API!");
 });
+
+app.use(
+  '/auth/*',
+  basicAuth({
+    username: 'hono',
+    password: 'acoolproject',
+  })
+)
 
 app.get("/api/dinosaurs", (c) => {
   return c.json(data);
